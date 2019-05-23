@@ -369,10 +369,10 @@ class Grammar:
         print('-\n|\t', end = '')
         for i in self.vt:
             print(i, '\t', end = '')
-        print('#\t|\n|', end = '')
+        print('#\t|\n', end = '')
         for i in range(len(self.vt) + 2):
             print('--------', end = '')
-        print('')
+        print('-')
         for i in self.vn:
             print('|', i, '\t', end = '')
             for j in self.vt:
@@ -387,19 +387,19 @@ class Grammar:
 
 if __name__ == '__main__':
     # 文法G[E]
-    # grammar_E = {
-    #     'E': 'E+T|T',
-    #     'T': 'T*F|F',
-    #     'F': '(E)|i'
-    # }
-    # begin_ch = 'E'
-    # 文法G[S]
     grammar_E = {
-        'S': 'Qc|c',
-        'Q': 'Rb|b',
-        'R': 'Sa|a'
+        'E': 'E+T|T',
+        'T': 'T*F|F',
+        'F': '(E)|i'
     }
-    begin_ch = 'S'
+    begin_ch = 'E'
+    # 文法G[S]
+    # grammar_E = {
+    #     'S': 'Qc|c',
+    #     'Q': 'Rb|b',
+    #     'R': 'Sa|a'
+    # }
+    # begin_ch = 'S'
     # 文法G[Z]
     # 自定义文法输入
     # grammar_E = {}
@@ -417,9 +417,9 @@ if __name__ == '__main__':
     my_grammar.construct_parsing_table()  # 构造LL(1)文法分析表
     my_grammar.print_all()  # 输出以上结果
     # s = 'abc+age+80'    # 文法G[E]判断通过样例
-    # s = '(abc-80(*s5)'  # 文法G[E]判断失败样例
+    s = '(abc-80(*s5)'  # 文法G[E]判断失败样例
     # s = 'cabcabc'    # 文法G[S]判断通过样例
-    s = 'abcbcabccc'  # 文法G[S]判断失败样例
+    # s = 'abcbcabccc'  # 文法G[S]判断失败样例
     # s = input('请输入待分析的符号串：')
     my_grammar.analysis(s)
     
