@@ -22,6 +22,9 @@ class Grammar:
         self.begin_ch = begin_ch
         for rule in grammar:
             temp = grammar[rule].split('|')
+            for index, item in enumerate(temp):
+                if item == '#':
+                    temp[index] = ''
             self.grammar[rule] = temp
         print('*****初始文法*****')
         self.print_grammar()
@@ -31,8 +34,8 @@ class Grammar:
     def trace_lr(self, vn, rule_1, rule_2, lr_list):
         # lr_list用于记录rule_1左递归经过的规则
         for item in self.grammar[rule_2]:
-            # 若当前规则不为空，则继续判断
-            if len(item) == 0:
+            # 若当前规则为空，则跳过次规则
+            if item == '':
                 continue
             # 若当前规则最左符号为非终结符，则检查其是否与rule_1相同
             if item[0] in vn:
@@ -62,8 +65,8 @@ class Grammar:
             if rule in delete_list:
                 continue
             for item in self.grammar[rule]:
-                # 若该规则最左侧是不为rule的非终结符，检查其是否存在间接左递归
-                if item[0] == rule:
+                # 若该规则不为空或最左侧是不为rule的非终结符，检查其是否存在间接左递归
+                if item == '' or item[0] == rule:
                     continue
                 if item[0] in vn and self.trace_lr(vn, rule, item[0], lr_list):
                     n = len(lr_list)
@@ -102,7 +105,8 @@ class Grammar:
             alpha = []  # 紧跟在直接左递归后的规则
             beta = []   # 不存在左递归的规则
             for (index, item) in enumerate(temp):
-                if item[0] == rule_1:
+                # 若规则不为空且最右部最左符号与左部相同，判定为True
+                if not item == '' and item[0] == rule_1:
                     flag = True
                     is_exist_lr = True
                     temp[index] = item[1:]
@@ -133,11 +137,13 @@ class Grammar:
     def first_deep(self, first, key):
         for item in self.grammar[key]:
             # 若该规则为空符号串且空符号串不在first中，直接加入first
-            if item == '' and '' not in first:
-                first.append('')
+            if item == '':
+                if '' not in first:
+                    first.append('')
             # 若该规则首符号为终结符且不在first中，直接加入first
-            elif item[0] in self.vt and item[0] not in first:
-                first.append(item[0])
+            elif item[0] in self.vt:
+                if item[0] not in first:
+                    first.append(item[0])
             # 若规则非空且首符号为非终结符，再次递归
             else:
                 self.first_deep(first, item[0])
@@ -159,8 +165,8 @@ class Grammar:
         # 若不可直接推导为空
         for item in self.grammar[rule]:
             for i in item:
-                # 若规则中包含非终结符的定义
-                if i in self.vn:
+                # 若规则中包含终结符的定义
+                if i in self.vt:
                     return False
                 # 检查广义推导
                 if self.is_generalized_to_empty(i):
@@ -183,12 +189,25 @@ class Grammar:
         for rule in self.grammar:
             self.first[rule] = []
             for item in self.grammar[rule]:
+                # 若规则为空，且不在first内，则将空加入first
                 if item == '' and '' not in self.first[rule]:
                     self.first[rule].append('')
-                elif item[0] in self.vt and item[0] not in self.first[rule]:
-                    self.first[rule].append(item[0])
-                else:
-                    self.first_deep(self.first[rule], item[0])  # 递归
+                # 若规则不为空，遍历规则
+                elif not item == '' :
+                    for r in item:
+                        # 若该符号为终结符，检查其是否在first内
+                        if r in self.vt:
+                            # 若该符号为在first内，则push之
+                            if r not in self.first[rule]:
+                                self.first[rule].append(r)
+                            # 已遍历到终结符，无需继续遍历，退出循环
+                            break
+                        # 若该符号为非终结符，则递归求first集
+                        else:
+                            self.first_deep(self.first[rule], r)
+                            # 若其可广义推导为空，则继续遍历，否则退出循环
+                            if not self.is_generalized_to_empty(r):
+                                break                                       
         # 再求follow集
         for rule in self.grammar:
             self.follow[rule] = []   # 初始化follow集
@@ -368,19 +387,26 @@ class Grammar:
 
 if __name__ == '__main__':
     # 文法G[E]
-    grammar_E = {
-        'E':'E+T|T',
-        'T':'T*F|F',
-        'F':'(E)|i'
-    }
-    begin_ch = 'E'
+    # grammar_E = {
+    #     'E': 'E+T|T',
+    #     'T': 'T*F|F',
+    #     'F': '(E)|i'
+    # }
+    # begin_ch = 'E'
     # 文法G[S]
     # grammar_E = {
-    #     'S':'Qc|c',
-    #     'Q':'Rb|b',
-    #     'R':'Sa|a'
+    #     'S': 'Qc|c',
+    #     'Q': 'Rb|b',
+    #     'R': 'Sa|a'
     # }
     # begin_ch = 'S'
+    # 文法G[Z]
+    grammar_E = {
+        'Z': 'AB',
+        'A': 'a|#',
+        'B': 'Zb'
+    }
+    begin_ch = 'Z'
     # 自定义文法输入
     # grammar_E = {}
     # n = int(input('请输入文法的表达式数目：'))
@@ -396,10 +422,10 @@ if __name__ == '__main__':
     my_grammar.first_and_follow()  # 求FIRST和FOLLOW集
     my_grammar.construct_parsing_table()  # 构造LL(1)文法分析表
     my_grammar.print_all()  # 输出以上结果
-    s = 'abc+age+80'    # 文法G[E]判断通过样例
+    # s = 'abc+age+80'    # 文法G[E]判断通过样例
     # s = '(abc-80(*s5)'  # 文法G[E]判断失败样例
     # s = 'cabcabc'    # 文法G[S]判断通过样例
     # s = 'abcbcabccc'  # 文法G[S]判断失败样例
     # s = input('请输入待分析的符号串：')
-    my_grammar.analysis(s)
+    # my_grammar.analysis(s)
     
