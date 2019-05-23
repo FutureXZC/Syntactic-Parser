@@ -387,12 +387,12 @@ class Grammar:
 
 if __name__ == '__main__':
     # 文法G[E]
-    grammar_E = {
-        'E': 'E+T|T',
-        'T': 'T*F|F',
-        'F': '(E)|i'
-    }
-    begin_ch = 'E'
+    # grammar_E = {
+    #     'E': 'E+T|T',
+    #     'T': 'T*F|F',
+    #     'F': '(E)|i'
+    # }
+    # begin_ch = 'E'
     # 文法G[S]
     # grammar_E = {
     #     'S': 'Qc|c',
@@ -400,16 +400,15 @@ if __name__ == '__main__':
     #     'R': 'Sa|a'
     # }
     # begin_ch = 'S'
-    # 文法G[Z]
     # 自定义文法输入
-    # grammar_E = {}
-    # n = int(input('请输入文法的表达式数目：'))
-    # begin_ch = input('请输入文法的开始符号：')
-    # print('请按S->A|B的格式，输入上述', n, '条规则，自定义标识符用‘i’表示：')
-    # grammar_temp = []
-    # for i in range(n):
-    #     s = input().split('->')
-    #     grammar_E[s[0]] = s[1]
+    grammar_E = {}
+    n = int(input('请输入文法的表达式数目：'))
+    begin_ch = input('请输入文法的开始符号：')
+    print('请按S->A|B的格式，输入上述', n, '条规则，自定义标识符用‘i’表示：')
+    grammar_temp = []
+    for i in range(n):
+        s = input().split('->')
+        grammar_E[s[0]] = s[1]
     my_grammar = Grammar(grammar_E, begin_ch)  # 创建Grammar实例
     my_grammar.indirect_left_recursion()  # 消除间接左递归
     my_grammar.immediate_left_recursion()  # 消除直接左递归同时更新vn和vt
@@ -417,9 +416,9 @@ if __name__ == '__main__':
     my_grammar.construct_parsing_table()  # 构造LL(1)文法分析表
     my_grammar.print_all()  # 输出以上结果
     # s = 'abc+age+80'    # 文法G[E]判断通过样例
-    s = '(abc-80(*s5)'  # 文法G[E]判断失败样例
+    # s = '(abc-80(*s5)'  # 文法G[E]判断失败样例
     # s = 'cabcabc'    # 文法G[S]判断通过样例
     # s = 'abcbcabccc'  # 文法G[S]判断失败样例
-    # s = input('请输入待分析的符号串：')
+    s = input('请输入待分析的符号串：')
     my_grammar.analysis(s)
     
