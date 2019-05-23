@@ -90,15 +90,13 @@ class Grammar:
             self.print_grammar()
         else:
             print('*****不存在间接左递归*****')
-        pass
 
-    # 消除直接左递归同时更新vn和vt
+    # 消除直接左递归
     def immediate_left_recursion(self):
         # 新建一个字典，用于存储消除直接左递归后的文法
         grammar_new = {}
         is_exist_lr = False
         for rule_1 in self.grammar:
-            # temp = self.grammar[rule_1].split('|')
             temp = self.grammar[rule_1]
             flag = False    # 是否存在直接左递归的标记，默认不存在
             alpha = []  # 紧跟在直接左递归后的规则
@@ -134,10 +132,13 @@ class Grammar:
     # 递归求first集
     def first_deep(self, first, key):
         for item in self.grammar[key]:
+            # 若该规则为空符号串且空符号串不在first中，直接加入first
             if item == '' and '' not in first:
                 first.append('')
+            # 若该规则首符号为终结符且不在first中，直接加入first
             elif item[0] in self.vt and item[0] not in first:
                 first.append(item[0])
+            # 若规则非空且首符号为非终结符，再次递归
             else:
                 self.first_deep(first, item[0])
     # End def first_deep
@@ -168,11 +169,10 @@ class Grammar:
                     return False
     # End def is_generalized_to_empty
 
-    # 构造first和follow集
+    # 构造first和follow集，同时求vn和vt
     def first_and_follow(self):
         # 创建终结符vt和非终结符vn数组
         self.vn = [a for a in self.grammar]
-        # self.vt = []
         for rule in self.grammar:
             for item in self.grammar[rule]:
                 for i in item:
@@ -192,10 +192,10 @@ class Grammar:
         # 再求follow集
         for rule in self.grammar:
             self.follow[rule] = []   # 初始化follow集
-        self.follow[self.begin_ch].append('#')    # 根据规则1，加入‘#’号
+        self.follow[self.begin_ch].append('#')    # 根据步骤1，加入‘#’号
         for rule in self.grammar:
             for item in self.grammar[rule]:
-                for i in range(len(item)):  # 根据规则2加入符号
+                for i in range(len(item)):  # 根据步骤2加入符号
                     if item[i] in self.vn and i < len(item)-1:
                         if item[i+1] in self.vt:
                             self.follow[item[i]].append(item[i+1])
@@ -205,7 +205,7 @@ class Grammar:
         for rule in self.grammar:
             for item in self.grammar[rule]:
                 n = len(item)
-                for i in range(n):  # 根据规则3加入符号
+                for i in range(n):  # 根据步骤3加入符号
                     if item[i] in self.vn and i == n-1:
                         self.follow[item[i]].extend(self.follow[rule])
                     elif item[i] in self.vn and i < n-1 \
@@ -230,6 +230,7 @@ class Grammar:
             for item in self.grammar[rule]:
                 if item == '':  # 当规则为空符号串时，找follow集
                     for i in self.follow[rule]:
+                        # 此处用‘#’代替空符号串
                         self.parsing_table[rule][i] = '#'
                 elif item[0] in self.vt: # 当规则为终结符时，直接加入分析表
                     self.parsing_table[rule][item[0]] = item
