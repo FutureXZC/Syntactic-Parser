@@ -82,7 +82,7 @@ class Grammar:
                                 self.grammar[next_r].remove(r)
                                 self.grammar[next_r] += r_temp
                                 delete_list.append(lr_list[i])  # 将被替换的规则加入delete_list
-                    lr_list = []
+                    lr_list = []  # 清空lr_list，留待下次遍历使用
         if len(delete_list) > 0:
             # 消除间接左递归后
             print('*****消除间接左递归*****')
@@ -394,19 +394,13 @@ if __name__ == '__main__':
     # }
     # begin_ch = 'E'
     # 文法G[S]
-    # grammar_E = {
-    #     'S': 'Qc|c',
-    #     'Q': 'Rb|b',
-    #     'R': 'Sa|a'
-    # }
-    # begin_ch = 'S'
-    # 文法G[Z]
     grammar_E = {
-        'Z': 'AB',
-        'A': 'a|#',
-        'B': 'Zb'
+        'S': 'Qc|c',
+        'Q': 'Rb|b',
+        'R': 'Sa|a'
     }
-    begin_ch = 'Z'
+    begin_ch = 'S'
+    # 文法G[Z]
     # 自定义文法输入
     # grammar_E = {}
     # n = int(input('请输入文法的表达式数目：'))
@@ -425,7 +419,7 @@ if __name__ == '__main__':
     # s = 'abc+age+80'    # 文法G[E]判断通过样例
     # s = '(abc-80(*s5)'  # 文法G[E]判断失败样例
     # s = 'cabcabc'    # 文法G[S]判断通过样例
-    # s = 'abcbcabccc'  # 文法G[S]判断失败样例
+    s = 'abcbcabccc'  # 文法G[S]判断失败样例
     # s = input('请输入待分析的符号串：')
-    # my_grammar.analysis(s)
+    my_grammar.analysis(s)
     
